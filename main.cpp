@@ -1,17 +1,71 @@
 #include <stdio.h>
-#include <winsock2.h>
 #include <time.h>
+#ifdef WIN32
 #include <windows.h>
+#include <winsock2.h>
+#else
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+// Call me lazy
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define WSAGetLastError() errno
+#define WSAEWOULDBLOCK EWOULDBLOCK
+#define ioctlsocket ioctl
+#endif
 char worldfolder[128] = "";
 bool dumpingWorld = false;
 bool generatingLog = false;
 
-#include "packet.h"
+
+/**
+	 * C++ version 0.4 char* style "itoa":
+	 * Written by Lukás Chmela
+	 * Released under GPLv3.
+	 */
+	char* itoa(int value, char* result, int base) {
+		// check that the base if valid
+		if (base < 2 || base > 36) { *result = '\0'; return result; }
+	
+		char* ptr = result, *ptr1 = result, tmp_char;
+		int tmp_value;
+	
+		do {
+			tmp_value = value;
+			value /= base;
+			*ptr++ = 
+"zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value 
+* base)];
+		} while ( value );
+	
+		// Apply negative sign
+		if (tmp_value < 0) *ptr++ = '-';
+		*ptr-- = '\0';
+		while(ptr1 < ptr) {
+			tmp_char = *ptr;
+			*ptr--= *ptr1;
+			*ptr1++ = tmp_char;
+		}
+		return result;
+	}
+
+#include "Packet.h"
 
 typedef Packet * (*CreateInstance_t)();
 CreateInstance_t packetFactory[256];
 
 #include "level.h"
+
+
+void SetNonBlocking(SOCKET s)
+{
+	u_long iMode = 1;
+	ioctlsocket(s, FIONBIO, &iMode);
+
+}
+
 
 
 SOCKET Connect(const char *host, int port)
@@ -37,7 +91,7 @@ SOCKET Connect(const char *host, int port)
 		return 0;
 	}
 
-	SOCKADDR_IN target;
+	sockaddr_in target;
 	target.sin_family = AF_INET;
 	target.sin_port = htons(port);
 	target.sin_addr.s_addr = addr;
@@ -45,15 +99,13 @@ SOCKET Connect(const char *host, int port)
 	if(hp != NULL)
 		printf("Connecting to %s:%d\n",hp->h_name,port);
 
-	if(connect(server, (SOCKADDR *)&target, sizeof(target)) == SOCKET_ERROR)
+	if(connect(server, (sockaddr *)&target, sizeof(target)) == SOCKET_ERROR)
 	{
 		printf("Failed to connect\n");
 		return 0;
 	}
 
 	printf("Connected\n");
-	u_long iMode = 0;
-	ioctlsocket(server, FIONBIO, &iMode);
 	return server;
 }
 
@@ -67,7 +119,7 @@ SOCKET WaitForClient(int port)
 		return 0;
 	}
 
-	SOCKADDR_IN local;
+	sockaddr_in local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(port);
 	local.sin_addr.s_addr = INADDR_ANY;
@@ -84,7 +136,7 @@ SOCKET WaitForClient(int port)
 
 	SOCKET client;
 	sockaddr_in from;
-	int fromlen = sizeof(from);
+	socklen_t fromlen = sizeof(from);
 
 	printf("Listening for client on port %d\n",port);
 
@@ -93,16 +145,15 @@ SOCKET WaitForClient(int port)
 		client = accept(ourserver, (sockaddr*)&from, &fromlen);
 
 		printf("Got connection from %s\n", inet_ntoa(from.sin_addr));
+#ifdef WIN32
 		closesocket(ourserver);
+#else
+		close(ourserver);
+#endif
 
 		return client;
 	}
 
-}
-
-void SetNonBlocking(SOCKET s,u_long iMode)
-{
-	ioctlsocket(s, FIONBIO, &iMode);
 }
 
 
@@ -227,6 +278,7 @@ int main(int argc, char *argv[])
 
 	packetFactory[0xFF] = CreatePacket_Kick;
 
+#ifdef WIN32
 	WSADATA wsadata;
 
 	if(WSAStartup(MAKEWORD(2,2), &wsadata) != 0)
@@ -240,18 +292,19 @@ int main(int argc, char *argv[])
 		printf("Invalid version\n");
 		return 0;
 	}
-
+#endif
 	while(1)
 	{
 		SOCKET client = WaitForClient(clientport);
 		if(client == 0)
 			continue;
-		SetNonBlocking(client,1);
+		SetNonBlocking(client);
 
 		SOCKET server = Connect(hostname,serverport);
 		if(server == 0)
 			continue;
-		SetNonBlocking(server,1);
+printf("setting non-blocking\n");
+		SetNonBlocking(server);
 
 		int starttime = (int)clock();
 
@@ -264,12 +317,16 @@ int main(int argc, char *argv[])
 			// packet for packet.
 			while(running)
 			{
+printf("waiting for packets\n");
 				FD_ZERO(&socks);
 				FD_SET(client, &socks);
 				FD_SET(server, &socks);
-
-				int socketsToRead = select(2,&socks, NULL, NULL, NULL);
-
+				timeval timeout;
+				timeout.tv_sec = 3;
+printf("doign select\n");
+				int socketsToRead = select((client > server ? client : 
+server)+1,&socks, NULL, NULL, &timeout);
+printf("select came back\n");
 				if(socketsToRead == SOCKET_ERROR)
 				{
 					break;
@@ -279,6 +336,7 @@ int main(int argc, char *argv[])
 				unsigned char packetType;
 				if(FD_ISSET(client, &socks))
 				{
+printf("select has client\n");
 					int len = recv(client,(char*)&packetType,1,0);
 
 					if(len == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
@@ -318,6 +376,7 @@ int main(int argc, char *argv[])
 
 				if(FD_ISSET(server, &socks))
 				{
+printf("select has server\n");
 					int len = recv(server,(char*)&packetType,1,0);
 
 					if(len == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
@@ -367,8 +426,13 @@ int main(int argc, char *argv[])
 			g_level.chunks.clear();
 		}
 		printf("Connection has been terminated (0x%08X)\n",WSAGetLastError());
+#ifdef WIN32
 		closesocket(client);
 		closesocket(server);
+#else
+		close(client);
+		close(server);
+#endif
 		fflush(fp);
 	}
 	if(fp != stdout)

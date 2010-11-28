@@ -1,6 +1,6 @@
 #pragma once
 
-#include <winsock2.h>
+
 #include "Packet.h"
 #include "protocol.h"
 
@@ -35,7 +35,7 @@ public:
 
 	void Print(FILE *fp)
 	{
-		fprintf(fp, "Velocity?( entityID = %d, velocityX = %d, velocityY = %d, velocityZ )", entityID, (int)velocityX, (int)velocityY, (int)velocityZ);
+		fprintf(fp, "Velocity?( entityID = %d, velocityX = %d, velocityY = %d, velocityZ = %d)", entityID, (int)velocityX, (int)velocityY, (int)velocityZ);
 	}
 
 	void Process()

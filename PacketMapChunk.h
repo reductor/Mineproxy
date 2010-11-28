@@ -1,6 +1,6 @@
 #pragma once
 
-#include <winsock2.h>
+
 #include "Packet.h"
 #include "protocol.h"
 extern "C"
@@ -11,13 +11,13 @@ extern "C"
 class Packet_MapChunk : public Packet
 {
 private:
-	int x;
-	short y;
-	int z;
-	unsigned char size_x;
-	unsigned char size_y;
-	unsigned char size_z;
-	int compressedSize;
+	int32_t x;
+	int16_t y;
+	int32_t z;
+	int8_t size_x;
+	int8_t size_y;
+	int8_t size_z;
+	int32_t compressedSize;
 	unsigned char *compressedData;
 	unsigned char *uncompressedData;
 public:
@@ -33,9 +33,9 @@ public:
 		x = ReadInt(s);
 		y = ReadShort(s);
 		z = ReadInt(s);
-		size_x = ReadUByte(s);
-		size_y = ReadUByte(s);
-		size_z = ReadUByte(s);
+		size_x = ReadByte(s);
+		size_y = ReadByte(s);
+		size_z = ReadByte(s);
 		compressedSize = ReadInt(s);
 		compressedData = new unsigned char[compressedSize];
 		RecvAll(s,(char*)compressedData,compressedSize,0);
@@ -77,9 +77,9 @@ public:
 		WriteInt(s,x);
 		WriteShort(s,y);
 		WriteInt(s,z);
-		WriteUByte(s,size_x);
-		WriteUByte(s,size_y);
-		WriteUByte(s,size_z);
+		WriteByte(s,size_x);
+		WriteByte(s,size_y);
+		WriteByte(s,size_z);
 		WriteInt(s,compressedSize);
 		send(s,(char*)compressedData,compressedSize,0);
 	}

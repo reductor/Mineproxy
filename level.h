@@ -13,8 +13,8 @@ extern "C"
 
 struct Level
 {
-	__int64 time;
-	__int64 mapSeed;
+	int64_t time;
+	int64_t mapSeed;
 	struct
 	{
 		double position[3];
@@ -37,8 +37,8 @@ struct Level
 	{
 		cTAG_Compound *compound = new cTAG_Compound("Data");
 		compound->add("SnowCovered",new cTAG_Byte(0));
-		compound->add("Time",new cTAG_Long(time));
-		compound->add("LastPlayed",new cTAG_Long(time));
+		compound->add("Time",new cTAG_Long(this->time));
+		compound->add("LastPlayed",new cTAG_Long(this->time));
 		
 		///cTAG_Compound *player = new cTAG_Compound("Player");
 		///player->add("Inventory"
@@ -59,7 +59,7 @@ struct Level
 
 		std::string a = ss.str();
 		char filename[128];
-		sprintf_s(filename,127,"%s/level.dat",worldfolder);
+		sprintf(filename,"%s/level.dat",worldfolder);
 		gzFile fp = gzopen(filename,"w");
 		if(fp == NULL)
 		{
@@ -76,3 +76,4 @@ struct Level
 };
 
 Level g_level;
+

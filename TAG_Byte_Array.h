@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ITAG.h"
-#include <winsock2.h>
+
 
 class cTAG_Byte_Array : public ITAG
 {

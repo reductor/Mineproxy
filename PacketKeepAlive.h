@@ -1,6 +1,6 @@
 #pragma once
 
-#include <winsock2.h>
+
 #include "Packet.h"
 
 class Packet_KeepAlive : public Packet

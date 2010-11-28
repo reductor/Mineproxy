@@ -1,6 +1,6 @@
-#include <winsock2.h>
-#include <windows.h>
 #include "protocol.h"
+#include <string.h>
+#include <stdint.h>
 
 void RecvAll(SOCKET s, char *buf, size_t len, int opts)
 {
@@ -16,40 +16,27 @@ void RecvAll(SOCKET s, char *buf, size_t len, int opts)
 	}
 }
 
-int ReadInt(SOCKET s)
+int32_t ReadInt(SOCKET s)
 {
-	int buf;
-	RecvAll(s, (char*)&buf, sizeof(int), 0);
+	int32_t buf;
+	RecvAll(s, (char*)&buf, sizeof(buf), 0);
 	return ntohl(buf);
 }
 
-void WriteInt(SOCKET s, int val)
+void WriteInt(SOCKET s, int32_t val)
 {
 	val = htonl(val);
-	send(s, (char*)&val, sizeof(int), 0);
+	send(s, (char*)&val, sizeof(val), 0);
 }
 
-unsigned int ReadUInt(SOCKET s)
+int16_t ReadShort(SOCKET s)
 {
-	unsigned int buf;
-	RecvAll(s, (char*)&buf, sizeof(int), 0);
-	return ntohl(buf);
-}
-
-void WriteUInt(SOCKET s, unsigned int val)
-{
-	val = htonl(val);
-	send(s, (char*)&val, sizeof(int), 0);
-}
-
-short ReadShort(SOCKET s)
-{
-	short buf;
-	RecvAll(s, (char*)&buf, sizeof(short), 0);
+	int16_t buf;
+	RecvAll(s, (char*)&buf, sizeof(buf), 0);
 	return ntohs(buf);
 }
 
-void WriteShort(SOCKET s, short val)
+void WriteShort(SOCKET s, int16_t val)
 {
 	val = htons(val);
 	send(s, (char*)&val, sizeof(short), 0);
@@ -57,39 +44,45 @@ void WriteShort(SOCKET s, short val)
 
 float ReadFloat(SOCKET s)
 {
-	u_long buf;
-	RecvAll(s, (char*)&buf, sizeof(u_long), 0);
+	int32_t buf;
+	RecvAll(s, (char*)&buf, sizeof(buf), 0);
 	buf = ntohl(buf);
-	return *reinterpret_cast<float *>(&buf);
+	float f;
+	memcpy(&f, &buf, sizeof(f));
+	return f;
 }
 
 void WriteFloat(SOCKET s, float val)
 {
-	int ival = *reinterpret_cast<unsigned int*>(&val);
+	int32_t ival;
+	memcpy(&ival, &val, sizeof(ival));
 	ival = htonl(ival);
-	send(s, (char*)&ival, sizeof(float), 0);
+	send(s, (char*)&ival, sizeof(ival), 0);
 }
 
 double ReadDouble(SOCKET s)
 {
-	unsigned long long buf;
-	RecvAll(s, (char*)&buf, sizeof(double), 0);
+	uint64_t buf;
+	RecvAll(s, (char*)&buf, sizeof(buf), 0);
 	buf = ntohll(buf);
-	return *reinterpret_cast<double *>(&buf);
+	double d;
+	memcpy(&d, &buf, sizeof(buf));
+	return d;
 }
 
 
 void WriteDouble(SOCKET s, double val)
 {
-	unsigned long long ival = *reinterpret_cast<unsigned long long*>(&val);
+	uint64_t ival;
+	memcpy(&ival, &val,  sizeof(ival));
 	ival = htonll(ival);
-	send(s, (char*)&ival, sizeof(double), 0);
+	send(s, (char*)&ival, sizeof(ival), 0);
 }
 
 char *ReadString(SOCKET s)
 {
-	short stringlen;
-	RecvAll(s, (char*)&stringlen, sizeof(short), 0);
+	int16_t stringlen;
+	RecvAll(s, (char*)&stringlen, sizeof(stringlen), 0);
 	stringlen = ntohs(stringlen);
 	char *str = new char[stringlen+1];
 	RecvAll(s, str, stringlen, 0);
@@ -100,46 +93,33 @@ char *ReadString(SOCKET s)
 
 void WriteString(SOCKET s, const char *str)
 {
-	short stringlen = htons(strlen(str));
+	int16_t stringlen = htons(strlen(str));
 	send(s, (char*)&stringlen, sizeof(short), 0);
 	send(s, str, strlen(str), 0);
 }
 
 
-char ReadByte(SOCKET s)
+int8_t ReadByte(SOCKET s)
 {
-	char buf;
+	int8_t buf;
 	RecvAll(s, (char*)&buf,1,0);
 	return buf;
 }
 
-void WriteByte(SOCKET s, char b)
+void WriteByte(SOCKET s, int8_t b)
 {
 	send(s, (char*)&b, 1, 0);
 }
 
-unsigned char ReadUByte(SOCKET s)
+int64_t ReadLongLong(SOCKET s)
 {
-	unsigned char buf;
-	RecvAll(s, (char*)&buf,1,0);
-	return buf;
-}
-
-void WriteUByte(SOCKET s, unsigned char b)
-{
-	send(s, (char*)&b, 1, 0);
-}
-
-unsigned long long ReadLongLong(SOCKET s)
-{
-	unsigned long long buf;
-	RecvAll(s, (char*)&buf, sizeof(unsigned long long), 0);
+	int64_t buf;
+	RecvAll(s, (char*)&buf, sizeof(buf), 0);
 	return ntohll(buf);	
 }
 
-void WriteLongLong(SOCKET s, unsigned long long val)
+void WriteLongLong(SOCKET s, int64_t val)
 {
 	val = htonll(val);
-	send(s, (char*)&val, sizeof(unsigned long long), 0);
-	
+	send(s, (char*)&val, sizeof(val), 0);
 }

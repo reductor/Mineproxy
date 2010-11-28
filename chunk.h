@@ -1,8 +1,14 @@
 #pragma once
 
 #include "ITAG.h"
+#include <stdlib.h>
 #include <sstream>
+#ifdef WIN32
 #include <direct.h>
+#else
+#include <sys/stat.h>
+#define _mkdir(x) mkdir(x, 0755)
+#endif
 extern "C"
 {
 	#include "zlib.h"

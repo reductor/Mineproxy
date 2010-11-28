@@ -1,6 +1,6 @@
 #pragma once
 
-#include <winsock2.h>
+
 #include "Packet.h"
 #include "protocol.h"
 #include "level.h"
@@ -9,11 +9,11 @@
 class Packet_Login : public Packet
 {
 private:
-	int version;
+	int32_t version;
 	char *name;
 	char *password;
-	__int64 mapSeed;
-	char dimension;
+	int64_t mapSeed;
+	int8_t dimension;
 public:
 	Packet_Login() : version(0),name(NULL),password(NULL) {}
 	~Packet_Login()

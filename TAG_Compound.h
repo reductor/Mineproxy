@@ -2,7 +2,7 @@
 
 #include "ITAG.h"
 #include <map>
-#include <winsock2.h>
+
 
 #include "TAG_String.h"
 
