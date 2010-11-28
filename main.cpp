@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <time.h>
 #ifdef WIN32
-#include <windows.h>
 #include <winsock2.h>
+#include <windows.h>
 #else
 #include <netdb.h>
 #include <sys/socket.h>
@@ -19,37 +19,38 @@ char worldfolder[128] = "";
 bool dumpingWorld = false;
 bool generatingLog = false;
 
-
+#ifndef WIN32
 /**
-	 * C++ version 0.4 char* style "itoa":
-	 * Written by Lukás Chmela
-	 * Released under GPLv3.
-	 */
-	char* itoa(int value, char* result, int base) {
-		// check that the base if valid
-		if (base < 2 || base > 36) { *result = '\0'; return result; }
-	
-		char* ptr = result, *ptr1 = result, tmp_char;
-		int tmp_value;
-	
-		do {
-			tmp_value = value;
-			value /= base;
-			*ptr++ = 
-"zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value 
-* base)];
-		} while ( value );
-	
-		// Apply negative sign
-		if (tmp_value < 0) *ptr++ = '-';
-		*ptr-- = '\0';
-		while(ptr1 < ptr) {
-			tmp_char = *ptr;
-			*ptr--= *ptr1;
-			*ptr1++ = tmp_char;
-		}
-		return result;
+* C++ version 0.4 char* style "itoa":
+* Written by Lukás Chmela
+* Released under GPLv3.
+*/
+char* itoa(int value, char* result, int base) {
+	// check that the base if valid
+	if (base < 2 || base > 36) { *result = '\0'; return result; }
+
+	char* ptr = result, *ptr1 = result, tmp_char;
+	int tmp_value;
+
+	do {
+		tmp_value = value;
+		value /= base;
+		*ptr++ = 
+			"zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value 
+			* base)];
+	} while ( value );
+
+	// Apply negative sign
+	if (tmp_value < 0) *ptr++ = '-';
+	*ptr-- = '\0';
+	while(ptr1 < ptr) {
+		tmp_char = *ptr;
+		*ptr--= *ptr1;
+		*ptr1++ = tmp_char;
 	}
+	return result;
+}
+#endif
 
 #include "Packet.h"
 
@@ -81,7 +82,7 @@ SOCKET Connect(const char *host, int port)
 	}
 	else
 	{
-		
+
 		hp=gethostbyaddr((char*)&addr,sizeof(addr),AF_INET);
 	}
 
@@ -95,7 +96,7 @@ SOCKET Connect(const char *host, int port)
 	target.sin_family = AF_INET;
 	target.sin_port = htons(port);
 	target.sin_addr.s_addr = addr;
-	
+
 	if(hp != NULL)
 		printf("Connecting to %s:%d\n",hp->h_name,port);
 
@@ -136,7 +137,11 @@ SOCKET WaitForClient(int port)
 
 	SOCKET client;
 	sockaddr_in from;
+#ifdef WIN32
+	int fromlen = sizeof(from);
+#else
 	socklen_t fromlen = sizeof(from);
+#endif
 
 	printf("Listening for client on port %d\n",port);
 
@@ -160,11 +165,11 @@ SOCKET WaitForClient(int port)
 void usage()
 {
 	printf("Usage:\n"
-			"\t-c<clientport>\tThe port your minecraft client will connect to (default 1337)\n"
-			"\t-h<host>\tThe hostname of the server to connect to (default localhost)\n"
-			"\t-p<port>\tThe port the minecraft server is using (default 25565)\n"
-			"\t-l<filename>\tThe filename to log traffic into (- for stdout)\n"
-			"\t-d<folder>\tThe folder to dump the world into (no spaces) (experimental)\n");
+		"\t-c<clientport>\tThe port your minecraft client will connect to (default 1337)\n"
+		"\t-h<host>\tThe hostname of the server to connect to (default localhost)\n"
+		"\t-p<port>\tThe port the minecraft server is using (default 25565)\n"
+		"\t-l<filename>\tThe filename to log traffic into (- for stdout)\n"
+		"\t-d<folder>\tThe folder to dump the world into (no spaces) (experimental)\n");
 }
 
 
@@ -182,33 +187,33 @@ int main(int argc, char *argv[])
 	{
 		switch (argv[1][1])
 		{
-			case 'c': // client port
-				clientport = atoi(&argv[1][2]);
-				break;
+		case 'c': // client port
+			clientport = atoi(&argv[1][2]);
+			break;
 
-			case 'h': // host
-				strcpy(hostname,&argv[1][2]);
-				break;
+		case 'h': // host
+			strcpy(hostname,&argv[1][2]);
+			break;
 
-			case 'p': // host port
-				serverport = atoi(&argv[1][2]);
-				break;
+		case 'p': // host port
+			serverport = atoi(&argv[1][2]);
+			break;
 
-			case 'l': // log file
-				strcpy(logfilename,&argv[1][2]);
-				generatingLog = true;
-				break;
+		case 'l': // log file
+			strcpy(logfilename,&argv[1][2]);
+			generatingLog = true;
+			break;
 
-			case 'd': // dump world
-				strcpy(worldfolder,&argv[1][2]);
-				dumpingWorld = true;
-				break;
+		case 'd': // dump world
+			strcpy(worldfolder,&argv[1][2]);
+			dumpingWorld = true;
+			break;
 
-			default:
-				printf("Wrong Argument: %s\n", argv[1]);
-				
-				usage();
-				return 0;
+		default:
+			printf("Wrong Argument: %s\n", argv[1]);
+
+			usage();
+			return 0;
 		}
 
 		++argv;
@@ -260,7 +265,7 @@ int main(int argc, char *argv[])
 	packetFactory[0x16] = CreatePacket_CollectItem;
 	packetFactory[0x17] = CreatePacket_AddObject;
 	packetFactory[0x18] = CreatePacket_MobSpawn;
-	
+
 	packetFactory[0x1C] = CreatePacket_Velocity;
 	packetFactory[0x1D] = CreatePacket_DestroyEntity;
 	packetFactory[0x1E] = CreatePacket_Entity;
@@ -303,7 +308,7 @@ int main(int argc, char *argv[])
 		SOCKET server = Connect(hostname,serverport);
 		if(server == 0)
 			continue;
-printf("setting non-blocking\n");
+
 		SetNonBlocking(server);
 
 		int starttime = (int)clock();
@@ -317,26 +322,23 @@ printf("setting non-blocking\n");
 			// packet for packet.
 			while(running)
 			{
-printf("waiting for packets\n");
 				FD_ZERO(&socks);
 				FD_SET(client, &socks);
 				FD_SET(server, &socks);
 				timeval timeout;
 				timeout.tv_sec = 3;
-printf("doign select\n");
+
 				int socketsToRead = select((client > server ? client : 
-server)+1,&socks, NULL, NULL, &timeout);
-printf("select came back\n");
+					server)+1,&socks, NULL, NULL, &timeout);
+
 				if(socketsToRead == SOCKET_ERROR)
 				{
 					break;
 				}
 
-
 				unsigned char packetType;
 				if(FD_ISSET(client, &socks))
 				{
-printf("select has client\n");
 					int len = recv(client,(char*)&packetType,1,0);
 
 					if(len == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
@@ -376,7 +378,6 @@ printf("select has client\n");
 
 				if(FD_ISSET(server, &socks))
 				{
-printf("select has server\n");
 					int len = recv(server,(char*)&packetType,1,0);
 
 					if(len == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)

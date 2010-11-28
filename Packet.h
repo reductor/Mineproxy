@@ -1,6 +1,10 @@
 #ifndef _PACKET_H
 #define _PACKET_H
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 #include "protocol.h"
 
 class Packet

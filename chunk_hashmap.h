@@ -12,7 +12,7 @@ struct ChunkHashMap
 		numChunks = 0;
 		memset(chunks,0,sizeof(chunks));
 	}
-	
+
 	inline int mod(int x, int m)
 	{
 		int r = x%m;

@@ -3,7 +3,9 @@
 #include "ITAG.h"
 #include "chunk_hashmap.h"
 #include "chunk.h"
-#include <sys/stat.h>
+#ifndef WIN32
+	#include <sys/stat.h>
+#endif
 #include <sstream>
 extern "C"
 {

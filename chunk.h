@@ -11,14 +11,14 @@
 #endif
 extern "C"
 {
-	#include "zlib.h"
+#include "zlib.h"
 }
 #define ARRAY_SIZE 16*128*16
 
 inline int mod(int x, int m)
 {
-    int r = x%m;
-    return r<0 ? r+m : r;
+	int r = x%m;
+	return r<0 ? r+m : r;
 }
 
 struct Chunk
@@ -90,7 +90,7 @@ struct Chunk
 		char zBase36[16];
 		itoa(mod(x,64),xMod64,36);
 		itoa(mod(z,64),zMod64,36);
-		
+
 		itoa(x,xBase36,36);
 		itoa(z,zBase36,36);
 
