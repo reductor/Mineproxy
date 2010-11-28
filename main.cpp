@@ -120,7 +120,7 @@ void usage()
 int main(int argc, char *argv[])
 {
 	printf("Minecraft Alpha Proxy by ReDucTor (James Mitchell)\n");
-	printf("Version: 1.4\n");
+	printf("Version: 1.5\n");
 
 	int clientport = 1337;
 	char hostname[128] = "localhost";
