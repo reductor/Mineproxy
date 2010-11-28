@@ -190,6 +190,9 @@ int main(int argc, char *argv[])
 	packetFactory[0x04] = CreatePacket_TimeUpdate;
 	packetFactory[0x05] = CreatePacket_PlayerInventory;
 	packetFactory[0x06] = CreatePacket_SpawnPlayer;
+	packetFactory[0x07] = CreatePacket_UseEntity;
+	packetFactory[0x08] = CreatePacket_Health;
+	packetFactory[0x09] = CreatePacket_Respawn;
 
 	packetFactory[0x0A] = CreatePacket_Flying;
 	packetFactory[0x0B] = CreatePacket_PlayerPosition;
@@ -206,14 +209,16 @@ int main(int argc, char *argv[])
 	packetFactory[0x16] = CreatePacket_CollectItem;
 	packetFactory[0x17] = CreatePacket_AddObject;
 	packetFactory[0x18] = CreatePacket_MobSpawn;
+	
+	packetFactory[0x1C] = CreatePacket_Velocity;
 	packetFactory[0x1D] = CreatePacket_DestroyEntity;
-
 	packetFactory[0x1E] = CreatePacket_Entity;
 	packetFactory[0x1F] = CreatePacket_EntityMove;
 	packetFactory[0x20] = CreatePacket_EntityLook;
 	packetFactory[0x21] = CreatePacket_EntityLookMove;
 	packetFactory[0x22] = CreatePacket_EntityTeleport;
 
+	packetFactory[0x27] = CreatePacket_AttachEntity;
 	packetFactory[0x32] = CreatePacket_PreChunk;
 	packetFactory[0x33] = CreatePacket_MapChunk;
 	packetFactory[0x34] = CreatePacket_MultiBlockChange;
@@ -364,6 +369,7 @@ int main(int argc, char *argv[])
 		printf("Connection has been terminated (0x%08X)\n",WSAGetLastError());
 		closesocket(client);
 		closesocket(server);
+		fflush(fp);
 	}
 	if(fp != stdout)
 		fclose(fp);

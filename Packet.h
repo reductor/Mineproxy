@@ -26,6 +26,9 @@ public:
 #include "PacketTimeUpdate.h"
 #include "PacketPlayerInventory.h"
 #include "PacketSpawnPlayer.h"
+#include "PacketUseEntity.h"
+#include "PacketHealth.h"
+#include "PacketRespawn.h"
 
 #include "PacketFlying.h"
 #include "PacketPlayerPosition.h"
@@ -42,6 +45,8 @@ public:
 #include "PacketCollectItem.h"
 #include "PacketAddObject.h"
 #include "PacketMobSpawn.h"
+
+#include "PacketVelocity.h"
 #include "PacketDestroyEntity.h"
 
 #include "PacketEntity.h"
@@ -49,6 +54,8 @@ public:
 #include "PacketEntityLook.h"
 #include "PacketEntityLookMove.h"
 #include "PacketEntityTeleport.h"
+
+#include "PacketAttachEntity.h"
 
 #include "PacketPreChunk.h"
 #include "PacketMapChunk.h"

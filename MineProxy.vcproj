@@ -181,10 +181,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\NBTtest.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Network.cpp"
 				>
 			</File>
@@ -227,6 +223,10 @@
 				</File>
 				<File
 					RelativePath=".\PacketArmAnimation.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PacketAttachEntity.h"
 					>
 				</File>
 				<File
@@ -275,6 +275,10 @@
 				</File>
 				<File
 					RelativePath=".\PacketHandshake.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PacketHealth.h"
 					>
 				</File>
 				<File
@@ -342,11 +346,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\PacketRespawn.h"
+					>
+				</File>
+				<File
 					RelativePath=".\PacketSpawnPlayer.h"
 					>
 				</File>
 				<File
 					RelativePath=".\PacketTimeUpdate.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PacketUseEntity.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PacketVelocity.h"
 					>
 				</File>
 			</Filter>
