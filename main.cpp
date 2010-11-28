@@ -15,6 +15,7 @@
 #define WSAEWOULDBLOCK EWOULDBLOCK
 #define ioctlsocket ioctl
 #endif
+#include <string.h>
 char worldfolder[128] = "";
 bool dumpingWorld = false;
 bool generatingLog = false;
